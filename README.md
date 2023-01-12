@@ -13,4 +13,4 @@ __COBE__ decompostion
 </div>
 
 ## Implementation<br />
-Feel free to modify the steps such as normalizing the feature, using outlier detection to control quality in multip_trials_cobe_aug_pla.m using your own data.
+Feel free to modify the steps such as normalizing the feature, using outlier detection to control quality in multip_trials_cobe_aug_pla.m.
