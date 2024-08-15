@@ -1,10 +1,15 @@
-function [Ac, Bc, f, Zc] = cobe_zy( Y,c )
-% Common orthogonal basis extraction
-% defopts=struct('c',[],'maxiter',2000,'PCAdim',[],'tol',1e-6,'epsilon',0.03);
-% if ~exist('opts','var')
-%     opts=struct;
-% end
-% [c maxiter PCAdim tol epsilon]=scanparam(defopts,opts);
+function [Ac, Bc, f, Zc] = cobe_zy(Y, c)
+% Common Orthogonal Basis Extraction (COBE)
+% 
+% Y:  multiset data saved as a list of cells, with each cell containing a data matrix (features x samples)
+% c:  number of common components
+% Ac: loadings of common components
+% Bc: coefficient matrices of common components 
+% 
+% Reference: Guoxu Zhou, Andrzej Cichocki, Yu Zhang, Danilo P. Mandic
+%               Group component analysis for multiblock data: Common and individual feature extraction.
+%               IEEE transactions on Neural Networks and Learning Systems 27, no. 11 (2015): 2426-2439.
+%
 
 maxiter=2000; PCAdim=[]; tol=1e-6; epsilon=0.03;
 
@@ -39,7 +44,7 @@ if any(J>=NRows)
     error('Rank of Y{n} must be less than the number of rows of {Yn}. You may need to specify the value for PCAdim properly.');
 end
 
-%% Seeking the first common basis
+%%Seeking the first common basis
 % Ac=rand(NRows,1);
 % Ac=Ac./norm(Ac);
 [~,idx]=sort(J,'ascend');
@@ -86,24 +91,24 @@ else
     Ac=[Ac zeros(NRows,minJn-1)];
 end
 
-%% seeking the next common basis
+%%seeking the next common basis
 for j=2:minJn    
-    %% %% stopping criterion -- 1 where c is given
+    %%stopping criterion -- 1 where c is given
     if ~isempty(c)&&(j>c)
         break;
     end
     
-    %% update U;
+    %%update U;
     for n=1:N
         U{n}=U{n}-(U{n}*x{n}(:,j-1))*x{n}(:,j-1)';
     end
     
-    %% initialization
+    %%initialization
 %     Ac(:,j)=U{1}*randn(size(U{1},2),1);
     Ac(:,j)=ccak_init(U{idx(1)},U{idx(2)},1);
     Ac(:,j)=Ac(:,j)./norm(Ac(:,j),'fro');
     
-    %% main iterations
+    %%main iterations
     for it=1:maxiter
         c0=Ac(:,j);
         c1=zeros(NRows,1);
@@ -127,7 +132,7 @@ for j=2:minJn
     end
     res(j)=res(j)./N;
      
-    %% stopping criterion -- 2
+    %%stopping criterion -- 2
     if res(j)>epsilon&&isempty(c)
         res(j)=inf;      
         break;
@@ -157,6 +162,3 @@ if nargout>=2
     end
     f=f./N;
 end
-
-end
-
